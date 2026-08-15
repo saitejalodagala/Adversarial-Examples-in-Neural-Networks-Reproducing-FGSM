@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adversarial Studio: FGSM & Advanced Neural Network Attacks</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <!-- Chart.js for High-Performance Real-time Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- Header Navigation -->
+  <header>
+    <div class="logo-container">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">
+        <h1>Adversarial Studio</h1>
+        <p>FGSM Reproduction & Robustness Research Platform</p>
+      </div>
+    </div>
+
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="playgroundTab">🎮 Attack Playground</button>
+      <button class="tab-btn" data-tab="defenseTab">🛡️ Defense Lab</button>
+      <button class="tab-btn" data-tab="landscapeTab">📈 Loss Landscape & Theory</button>
+    </nav>
+
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      <span>PyTorch Ready</span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- TAB 1: ATTACK PLAYGROUND -->
+    <div id="playgroundTab" class="tab-content active">
+      <div class="playground-grid">
+        <!-- Sidebar Controls -->
+        <div class="card">
+          <div class="card-title">
+            <span>⚙️ Attack Configurator</span>
+          </div>
+
+          <!-- Canvas Drawing / Input -->
+          <div class="form-group">
+            <label class="form-label">
+              <span>Input Digit (Draw or Pick)</span>
+              <span style="font-size: 0.75rem; color: var(--accent-cyan);">28x28 Canvas</span>
+            </label>
+            <div class="canvas-wrapper">
+              <canvas id="digitCanvas" width="140" height="140"></canvas>
+              <div class="canvas-actions">
+                <button id="clearBtn" class="btn btn-secondary">🗑️ Clear Canvas</button>
+              </div>
+            </div>
+            <!-- Preset Samples Grid -->
+            <div id="sampleGrid" class="sample-grid"></div>
+          </div>
+
+          <!-- Model Selector -->
+          <div class="form-group">
+            <label class="form-label">Target Model</label>
+            <select id="modelSelect" class="form-select"></select>
+          </div>
+
+          <!-- Attack Selector -->
+          <div class="form-group">
+            <label class="form-label">Adversarial Attack</label>
+            <select id="attackSelect" class="form-select"></select>
+          </div>
+
+          <!-- Perturbation Epsilon Slider -->
+          <div class="form-group">
+            <label class="form-label">
+              <span>Perturbation Budget (ε)</span>
+              <span id="epsilonVal" class="slider-value">0.20</span>
+            </label>
+            <div class="slider-container">
+              <input id="epsilonSlider" type="range" min="0.0" max="0.5" step="0.01" value="0.20" class="slider">
+            </div>
+          </div>
+
+          <!-- Iteration Steps Slider -->
+          <div class="form-group">
+            <label class="form-label">
+              <span>Attack Iterations (T)</span>
+              <span id="stepsVal" class="slider-value">10</span>
+            </label>
+            <div class="slider-container">
+              <input id="stepsSlider" type="range" min="1" max="50" step="1" value="10" class="slider">
+            </div>
+          </div>
+
+          <!-- Targeted Toggle -->
+          <div class="form-group toggle-group">
+            <span class="form-label" style="margin-bottom:0;">Targeted Attack Mode</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="targetedToggle">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <!-- Target Class Selector -->
+          <div id="targetClassGroup" class="form-group" style="display: none;">
+            <label class="form-label">Target Class</label>
+            <select id="targetClassSelect" class="form-select">
+              <option value="0">Digit 0</option>
+              <option value="1">Digit 1</option>
+              <option value="2">Digit 2</option>
+              <option value="3">Digit 3</option>
+              <option value="4">Digit 4</option>
+              <option value="5">Digit 5</option>
+              <option value="6">Digit 6</option>
+              <option value="7">Digit 7</option>
+              <option value="8">Digit 8</option>
+              <option value="9">Digit 9</option>
+            </select>
+          </div>
+
+          <!-- Action Button -->
+          <button id="attackBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+            🚀 Generate Adversarial Attack
+          </button>
+        </div>
+
+        <!-- Main Inspector Area -->
+        <div class="inspector-container">
+          <!-- Triptych Image Display -->
+          <div class="card">
+            <div class="card-title">
+              <span>🔍 Real-Time Adversarial Inspector</span>
+            </div>
+            <div class="triptych">
+              <!-- Panel 1: Clean Input -->
+              <div class="image-panel">
+                <div class="image-panel-title">1. Clean Image (x)</div>
+                <img id="cleanImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAA=" alt="Clean">
+                <div id="cleanBadge" class="prediction-badge badge-clean">Predicted: -</div>
+              </div>
+
+              <!-- Panel 2: Perturbation Heatmap -->
+              <div class="image-panel">
+                <div class="image-panel-title">2. Perturbation (±ε Heatmap)</div>
+                <img id="pertImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAA=" alt="Perturbation">
+                <div class="prediction-badge" style="background: rgba(255,255,255,0.05); color: var(--text-secondary);">
+                  Scaled [-ε, +ε]
+                </div>
+              </div>
+
+              <!-- Panel 3: Adversarial Output -->
+              <div class="image-panel">
+                <div class="image-panel-title">3. Adversarial Image (x_adv)</div>
+                <img id="advImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAA=" alt="Adversarial">
+                <div id="advBadge" class="prediction-badge badge-adversarial">Adversarial: -</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metrics Ribbon -->
+          <div class="metrics-ribbon">
+            <div class="metric-card">
+              <div class="metric-label">L_inf Norm (Max)</div>
+              <div id="metricLinf" class="metric-val">0.000</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">L_2 Norm (RMS)</div>
+              <div id="metricL2" class="metric-val">0.000</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">L_0 (Pixels Changed)</div>
+              <div id="metricL0" class="metric-val">0.0%</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">PSNR Fidelity</div>
+              <div id="metricPsnr" class="metric-val">0.0 dB</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">SSIM Similarity</div>
+              <div id="metricSsim" class="metric-val">1.000</div>
+            </div>
+          </div>
+
+          <!-- Class Probabilities Chart -->
+          <div class="card">
+            <div class="card-title">
+              <span>📊 Class Probability Distributions (Clean vs Adversarial)</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="probChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: DEFENSE LAB -->
+    <div id="defenseTab" class="tab-content">
+      <div class="defense-grid">
+        <div class="card">
+          <div class="card-title">
+            <span>🛡️ Defense Filters</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Sanitization Technique</label>
+            <select id="defenseTypeSelect" class="form-select"></select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span id="defenseParamLabel">Parameter</span>
+              <span id="defenseParamVal" class="slider-value">4.0</span>
+            </label>
+            <div class="slider-container">
+              <input id="defenseParamSlider" type="range" min="1" max="8" step="1" value="4" class="slider">
+            </div>
+          </div>
+
+          <button id="applyDefenseBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+            ✨ Apply Defense Layer
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>🧪 Input Sanitization & Recovery</span>
+          </div>
+          <div class="triptych">
+            <div class="image-panel">
+              <div class="image-panel-title">Adversarial Input</div>
+              <img id="defenseAdvImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAA=" alt="Adv">
+            </div>
+            <div class="image-panel" style="grid-column: span 2;">
+              <div class="image-panel-title">Sanitized Input (After Preprocessing)</div>
+              <img id="defenseSanitizedImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAA=" alt="Sanitized">
+              <div id="defenseBadge" class="prediction-badge badge-sanitized">Status: Ready</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: LOSS LANDSCAPE & THEORY -->
+    <div id="landscapeTab" class="tab-content">
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-title">
+          <span>📐 1D Loss Landscape along Adversarial Trajectory</span>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+          Cross-section of the loss function along the linear interpolation line \( \mathbf{x}(\gamma) = \mathbf{x} + \gamma \cdot (\mathbf{x}_{\text{adv}} - \mathbf{x}) \).
+          Goodfellow's Linearity Hypothesis states that neural network vulnerability arises primarily from linear behavior in high-dimensional spaces rather than extreme non-linearities.
+        </p>
+        <div class="chart-wrapper">
+          <canvas id="landscapeChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>📖 Theoretical Formulations & References</span>
+        </div>
+        
+        <div class="math-card">
+          FGSM (Goodfellow et al., 2014):<br>
+          x_adv = clamp( x + ε · sign( ∇_x L(θ, x, y) ), 0, 1 )
+        </div>
+
+        <div class="math-card">
+          PGD-AT Robust Min-Max Optimization (Madry et al., 2018):<br>
+          min_θ E_{(x, y)} [ max_{δ ∈ S} L(θ, x + δ, y) ]
+        </div>
+
+        <div class="math-card">
+          The Linearity Dot-Product Amplification:<br>
+          w^T (x + η) = w^T x + w^T η  ==>  Max Activation Increase = ε ||w||_1 ≈ ε · m · n
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>Adversarial Studio | Reproducing FGSM & Advanced Adversarial Attacks in Neural Networks | MIT License</p>
+  </footer>
+
+  <!-- App Scripts -->
+  <script src="/static/js/canvas.js"></script>
+  <script src="/static/js/charts.js"></script>
+  <script src="/static/js/visualizer.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

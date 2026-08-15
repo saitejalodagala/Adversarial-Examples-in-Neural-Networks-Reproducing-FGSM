@@ -1,0 +1,62 @@
+[
+  {
+    "attack": "Clean (No Attack)",
+    "clean_model_robust_acc": 97.65625,
+    "adv_model_robust_acc": 100.0,
+    "gain": 2.34375
+  },
+  {
+    "attack": "Random Noise (eps=0.2)",
+    "clean_model_robust_acc": 97.65625,
+    "adv_model_robust_acc": 96.875,
+    "gain": -0.78125
+  },
+  {
+    "attack": "FGSM (eps=0.1)",
+    "clean_model_robust_acc": 82.03125,
+    "adv_model_robust_acc": 95.3125,
+    "gain": 13.28125
+  },
+  {
+    "attack": "FGSM (eps=0.2)",
+    "clean_model_robust_acc": 42.96875,
+    "adv_model_robust_acc": 99.21875,
+    "gain": 56.25
+  },
+  {
+    "attack": "FGSM (eps=0.3)",
+    "clean_model_robust_acc": 8.59375,
+    "adv_model_robust_acc": 82.03125,
+    "gain": 73.4375
+  },
+  {
+    "attack": "I-FGSM (eps=0.2, T=10)",
+    "clean_model_robust_acc": 10.9375,
+    "adv_model_robust_acc": 0.78125,
+    "gain": -10.15625
+  },
+  {
+    "attack": "PGD-Linf (eps=0.2, T=10)",
+    "clean_model_robust_acc": 3.125,
+    "adv_model_robust_acc": 0.0,
+    "gain": -3.125
+  },
+  {
+    "attack": "MI-FGSM (eps=0.2, T=10)",
+    "clean_model_robust_acc": 14.0625,
+    "adv_model_robust_acc": 0.0,
+    "gain": -14.0625
+  },
+  {
+    "attack": "DeepFool (max_iter=10)",
+    "clean_model_robust_acc": 90.625,
+    "adv_model_robust_acc": 100.0,
+    "gain": 9.375
+  },
+  {
+    "attack": "Carlini-Wagner L2 (steps=15)",
+    "clean_model_robust_acc": 96.09375,
+    "adv_model_robust_acc": 100.0,
+    "gain": 3.90625
+  }
+]
