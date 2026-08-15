@@ -25,7 +25,7 @@ Historically, adversarial vulnerability was conjectured to stem from extreme non
 Consider an affine dot-product activation in a layer with weight vector $\mathbf{w} \in \mathbb{R}^n$ and clean input $\mathbf{x} \in \mathbb{R}^n$:
 $$\mathbf{w}^\top \tilde{\mathbf{x}} = \mathbf{w}^\top (\mathbf{x} + \boldsymbol{\eta}) = \mathbf{w}^\top \mathbf{x} + \mathbf{w}^\top \boldsymbol{\eta}$$
 
-If each element of the perturbation $\boldsymbol{\eta}$ is bounded by $\|\boldsymbol{\eta}\|_\infty \le \epsilon$, the maximum increase in activation is achieved by setting $\boldsymbol{\eta} = \epsilon \operatorname{sign}(\mathbf{w})$:
+If each element of the perturbation $\boldsymbol{\eta}$ is bounded by $\|\boldsymbol{\eta}\|_\infty \le \epsilon$, the maximum increase in activation is achieved by setting $\boldsymbol{\eta} = \epsilon \mathrm{sign}(\mathbf{w})$:
 $$\mathbf{w}^\top \boldsymbol{\eta} = \epsilon \|\mathbf{w}\|_1 = \epsilon \sum_{i=1}^n |w_i|$$
 
 For an $n$-dimensional input where the average weight magnitude is $m = \frac{1}{n} \|\mathbf{w}\|_1$:
@@ -49,10 +49,10 @@ $$\mathcal{L}(\boldsymbol{\theta}, \mathbf{x} + \boldsymbol{\eta}, y) \approx \m
 
 The optimal 1-step perturbation that maximizes this local linear approximation is:
 
-$$\mathbf{x}_{\text{adv}} = \operatorname{clamp}\left( \mathbf{x} + \epsilon \cdot \operatorname{sign}\left(\nabla_{\mathbf{x}} \mathcal{L}(\boldsymbol{\theta}, \mathbf{x}, y)\right), 0, 1 \right)$$
+$$\mathbf{x}_{\text{adv}} = \mathrm{clamp}\left( \mathbf{x} + \epsilon \cdot \mathrm{sign}\left(\nabla_{\mathbf{x}} \mathcal{L}(\boldsymbol{\theta}, \mathbf{x}, y)\right), 0, 1 \right)$$
 
 For **Targeted FGSM** (forcing the model to predict a specific target class $y_{\text{target}} \neq y$):
-$$\mathbf{x}_{\text{adv}} = \operatorname{clamp}\left( \mathbf{x} - \epsilon \cdot \operatorname{sign}\left(\nabla_{\mathbf{x}} \mathcal{L}(\boldsymbol{\theta}, \mathbf{x}, y_{\text{target}})\right), 0, 1 \right)$$
+$$\mathbf{x}_{\text{adv}} = \mathrm{clamp}\left( \mathbf{x} - \epsilon \cdot \mathrm{sign}\left(\nabla_{\mathbf{x}} \mathcal{L}(\boldsymbol{\theta}, \mathbf{x}, y_{\text{target}})\right), 0, 1 \right)$$
 
 ---
 
@@ -60,13 +60,13 @@ $$\mathbf{x}_{\text{adv}} = \operatorname{clamp}\left( \mathbf{x} - \epsilon \cd
 
 | Attack Algorithm | Paper Citation | Perturbation Norm | Key Update Rule |
 | :--- | :--- | :---: | :--- |
-| **FGSM** | Goodfellow et al. (2014) | $L_\infty$ | $\mathbf{x}_{\text{adv}} = \operatorname{clamp}(\mathbf{x} + \epsilon \operatorname{sign}(\nabla_{\mathbf{x}} \mathcal{L}))$ |
-| **I-FGSM (BIM)** | Kurakin et al. (2016) | $L_\infty$ | $\mathbf{x}^{t+1} = \Pi_{\mathcal{B}_\epsilon(\mathbf{x})}(\mathbf{x}^t + \alpha \operatorname{sign}(\nabla_{\mathbf{x}^t} \mathcal{L}))$ |
-| **PGD** | Madry et al. (2018) | $L_\infty, L_2$ | $\mathbf{x}^0 = \mathbf{x} + \mathcal{U}(-\epsilon, \epsilon), \quad \mathbf{x}^{t+1} = \Pi_{\mathcal{S}}(\mathbf{x}^t + \alpha \operatorname{sign}(\nabla_{\mathbf{x}^t} \mathcal{L}))$ |
-| **MI-FGSM** | Dong et al. (2018) | $L_\infty$ | $\mathbf{g}_{t+1} = \mu \mathbf{g}_t + \frac{\nabla_{\mathbf{x}} \mathcal{L}}{\|\nabla_{\mathbf{x}} \mathcal{L}\|_1}, \quad \mathbf{x}^{t+1} = \Pi_{\mathcal{B}_\epsilon}(\mathbf{x}^t + \alpha \operatorname{sign}(\mathbf{g}_{t+1}))$ |
+| **FGSM** | Goodfellow et al. (2014) | $L_\infty$ | $\mathbf{x}_{\text{adv}} = \mathrm{clamp}(\mathbf{x} + \epsilon \mathrm{sign}(\nabla_{\mathbf{x}} \mathcal{L}))$ |
+| **I-FGSM (BIM)** | Kurakin et al. (2016) | $L_\infty$ | $\mathbf{x}^{t+1} = \Pi_{\mathcal{B}_\epsilon(\mathbf{x})}(\mathbf{x}^t + \alpha \mathrm{sign}(\nabla_{\mathbf{x}^t} \mathcal{L}))$ |
+| **PGD** | Madry et al. (2018) | $L_\infty, L_2$ | $\mathbf{x}^0 = \mathbf{x} + \mathcal{U}(-\epsilon, \epsilon), \quad \mathbf{x}^{t+1} = \Pi_{\mathcal{S}}(\mathbf{x}^t + \alpha \mathrm{sign}(\nabla_{\mathbf{x}^t} \mathcal{L}))$ |
+| **MI-FGSM** | Dong et al. (2018) | $L_\infty$ | $\mathbf{g}_{t+1} = \mu \mathbf{g}_t + \frac{\nabla_{\mathbf{x}} \mathcal{L}}{\|\nabla_{\mathbf{x}} \mathcal{L}\|_1}, \quad \mathbf{x}^{t+1} = \Pi_{\mathcal{B}_\epsilon}(\mathbf{x}^t + \alpha \mathrm{sign}(\mathbf{g}_{t+1}))$ |
 | **Carlini-Wagner ($L_2$)** | Carlini & Wagner (2017) | $L_2$ | $\min_{\mathbf{w}} \|\mathbf{x}' - \mathbf{x}\|_2^2 + c \cdot \max(\max_{i \neq y} Z(\mathbf{x}')_i - Z(\mathbf{x}')_y, -\kappa)$ |
 | **DeepFool** | Moosavi-Dezfooli et al. (2016) | $L_2, L_\infty$ | Iterative projection onto closest affine decision hyperplane |
-| **Random Noise** | Baseline | $L_\infty, L_2$ | $\mathbf{x}_{\text{noisy}} = \operatorname{clamp}(\mathbf{x} + \mathcal{U}(-\epsilon, \epsilon))$ |
+| **Random Noise** | Baseline | $L_\infty, L_2$ | $\mathbf{x}_{\text{noisy}} = \mathrm{clamp}(\mathbf{x} + \mathcal{U}(-\epsilon, \epsilon))$ |
 
 ---
 
