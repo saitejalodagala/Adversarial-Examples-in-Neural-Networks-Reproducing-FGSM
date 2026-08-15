@@ -25,6 +25,7 @@ dependencies = [
     "uvicorn>=0.23.0",
     "pydantic>=2.0.0",
     "pillow>=9.5.0",
+    "httpx>=0.24.0",
 ]
 
 [project.optional-dependencies]
@@ -41,3 +42,6 @@ adv-studio = "adv_studio.cli.main:main"
 testpaths = ["tests"]
 python_files = "test_*.py"
 python_functions = "test_*"
+pythonpath = [
+  "."
+]
