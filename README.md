@@ -13,6 +13,8 @@
 
 **Adversarial Studio** is a comprehensive, production-grade library and interactive research platform dedicated to the empirical study, reproduction, and defense of adversarial examples in deep neural networks.
 
+📄 **Project Report:** [**Read the Full Research Report (PDF)**](docs/Adversarial_Examples_FGSM_Report.pdf)
+
 Starting from the foundational reproduction of **Goodfellow et al. (ICLR 2015)** *"Explaining and Harnessing Adversarial Examples"*, this repository expands into an end-to-end framework covering **8+ state-of-the-art adversarial attacks**, **4+ robust defense mechanisms**, a **multi-model zoo**, and a **real-time Interactive Web Studio** equipped with an interactive digit drawing canvas, perturbation heatmaps, confidence radar charts, and 1D/2D loss landscape visualizers.
 
 ---
